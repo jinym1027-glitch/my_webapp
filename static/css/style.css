@@ -202,7 +202,7 @@ body {
 /* Dashboard Stats Cards */
 .dashboard-stats {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 18px;
     margin-bottom: 28px;
 }
@@ -238,6 +238,8 @@ body {
 .total-icon { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); }
 .pending-icon { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); }
 .completed-icon { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
+.live-icon { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); }
+.today-icon { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
 
 .stat-info {
     display: flex;
@@ -705,6 +707,93 @@ body {
     color: #cbd5e1;
 }
 
+.badge-status-scheduled {
+    background: var(--priority-med-bg);
+    border: 1px solid var(--priority-med-border);
+    color: var(--priority-med-text);
+}
+
+.badge-status-live {
+    background: var(--priority-high-bg);
+    border: 1px solid var(--priority-high-border);
+    color: var(--priority-high-text);
+    animation: pulse-ring 2s infinite;
+}
+
+.badge-status-finished {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+}
+
+.meta-date-time {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+/* Game Card (KBO Schedule) */
+.game-card {
+    position: relative;
+    overflow: hidden;
+    padding-left: 22px;
+}
+
+.game-status-rail {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.game-card.finished {
+    opacity: 0.75;
+}
+
+.game-card.live {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.matchup-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 8px 0 6px;
+}
+
+.team-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--team-color, var(--accent-primary));
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.score-value {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 1px;
+    min-width: 60px;
+    text-align: center;
+}
+
+.score-value.score-pending {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.action-btn.cycle-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #a5b4fc;
+}
+
 .todo-description {
     font-size: 0.85rem;
     color: var(--text-secondary);
@@ -932,7 +1021,7 @@ body {
 /* Responsive Breakpoints */
 @media (max-width: 960px) {
     .dashboard-stats {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
     .main-content-grid {
         grid-template-columns: 1fr;
