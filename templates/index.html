@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Flask 기반의 직관적이고 세련된 스마트 할일 관리(Todo) 웹 애플리케이션">
+    <title>TaskPulse - 스마트 할일 관리 시스템</title>
+    <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- 배경 동적 그라디언트 구체 -->
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+    <div class="glow-sphere sphere-3"></div>
+
+    <div class="app-layout">
+        <!-- 상단 헤더 -->
+        <header class="app-header">
+            <div class="brand-area">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">TaskPulse</h1>
+                    <p class="brand-subtitle">Flask 기반 고성능 스마트 태스크 매니저</p>
+                </div>
+            </div>
+
+            <div class="header-status">
+                <div class="server-badge" id="server-status-badge">
+                    <span class="pulse-dot"></span>
+                    <span id="server-status-text">Flask 서버 정상 구동 중</span>
+                </div>
+                <div class="today-date" id="current-date-display">2026. 09. 17</div>
+            </div>
+        </header>
+
+        <!-- 핵심 통계 대시보드 -->
+        <section class="dashboard-stats" aria-label="할일 통계 현황">
+            <div class="stat-card total-card">
+                <div class="stat-icon total-icon">📋</div>
+                <div class="stat-info">
+                    <span class="stat-label">전체 할 일</span>
+                    <span class="stat-value" id="stat-total">0</span>
+                </div>
+            </div>
+
+            <div class="stat-card pending-card">
+                <div class="stat-icon pending-icon">⏳</div>
+                <div class="stat-info">
+                    <span class="stat-label">진행 중</span>
+                    <span class="stat-value" id="stat-active">0</span>
+                </div>
+            </div>
+
+            <div class="stat-card completed-card">
+                <div class="stat-icon completed-icon">✨</div>
+                <div class="stat-info">
+                    <span class="stat-label">완료됨</span>
+                    <span class="stat-value" id="stat-completed">0</span>
+                </div>
+            </div>
+
+            <div class="stat-card progress-card">
+                <div class="stat-info-full">
+                    <div class="progress-header">
+                        <span class="stat-label">달성률</span>
+                        <span class="stat-percentage" id="stat-rate">0%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="stat-progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="main-content-grid">
+            <!-- 좌측: 신규 할일 등록 폼 -->
+            <aside class="create-todo-panel glass-panel">
+                <h2 class="panel-heading">새 할 일 작성</h2>
+                <form id="create-todo-form" class="todo-form">
+                    <div class="form-group">
+                        <label for="todo-title-input" class="form-label">할 일 제목 <span class="required">*</span></label>
+                        <input type="text" id="todo-title-input" class="input-control" placeholder="예: Flask 애플리케이션 테스트 실행" required autofocus>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="todo-desc-input" class="form-label">상세 메모</label>
+                        <textarea id="todo-desc-input" class="textarea-control" rows="3" placeholder="필요한 세부 사항이나 링크를 입력하세요"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="todo-priority-select" class="form-label">우선순위</label>
+                            <select id="todo-priority-select" class="select-control">
+                                <option value="high">🔴 높음 (High)</option>
+                                <option value="medium" selected>🟡 중간 (Medium)</option>
+                                <option value="low">🟢 낮음 (Low)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group half">
+                            <label for="todo-category-input" class="form-label">카테고리</label>
+                            <input type="text" id="todo-category-input" class="input-control" placeholder="예: 업무, 공부, 개인" value="업무">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="todo-due-date-input" class="form-label">마감 목표일</label>
+                        <input type="date" id="todo-due-date-input" class="input-control">
+                    </div>
+
+                    <button type="submit" id="btn-submit-todo" class="btn btn-primary btn-block">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        할 일 추가하기
+                    </button>
+                </form>
+            </aside>
+
+            <!-- 우측: 할일 목록 및 필터/검색 바 -->
+            <section class="todo-list-panel glass-panel">
+                <!-- 필터 및 검색 바 -->
+                <div class="list-toolbar">
+                    <div class="search-box">
+                        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="search-input" class="search-control" placeholder="할 일 또는 내용 검색...">
+                        <button type="button" id="btn-clear-search" class="clear-search-btn" title="검색어 초기화" style="display: none;">✕</button>
+                    </div>
+
+                    <div class="filter-controls">
+                        <!-- 상태 탭 -->
+                        <div class="filter-tabs" role="tablist">
+                            <button type="button" class="filter-tab active" data-status="all" id="filter-all-btn">전체</button>
+                            <button type="button" class="filter-tab" data-status="active" id="filter-active-btn">진행 중</button>
+                            <button type="button" class="filter-tab" data-status="completed" id="filter-completed-btn">완료</button>
+                        </div>
+
+                        <!-- 우선순위 필터 드롭다운 -->
+                        <select id="filter-priority-select" class="filter-select">
+                            <option value="all">우선순위 전체</option>
+                            <option value="high">우선순위: 높음</option>
+                            <option value="medium">우선순위: 중간</option>
+                            <option value="low">우선순위: 낮음</option>
+                        </select>
+
+                        <!-- 카테고리 필터 드롭다운 -->
+                        <select id="filter-category-select" class="filter-select">
+                            <option value="all">카테고리 전체</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 할일 리스트 컨테이너 -->
+                <div class="todo-list-container" id="todo-list-container">
+                    <div class="loading-spinner-area" id="loading-indicator">
+                        <div class="spinner"></div>
+                        <p>할 일 목록을 불러오는 중...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 수정 모달 -->
+        <div class="modal-overlay" id="edit-modal" style="display: none;">
+            <div class="modal-card glass-panel">
+                <div class="modal-header">
+                    <h3 class="modal-title">할 일 수정</h3>
+                    <button type="button" id="btn-close-modal" class="modal-close-btn">&times;</button>
+                </div>
+                <form id="edit-todo-form" class="todo-form">
+                    <input type="hidden" id="edit-todo-id">
+                    
+                    <div class="form-group">
+                        <label for="edit-todo-title" class="form-label">할 일 제목</label>
+                        <input type="text" id="edit-todo-title" class="input-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-todo-desc" class="form-label">상세 메모</label>
+                        <textarea id="edit-todo-desc" class="textarea-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="edit-todo-priority" class="form-label">우선순위</label>
+                            <select id="edit-todo-priority" class="select-control">
+                                <option value="high">🔴 높음 (High)</option>
+                                <option value="medium">🟡 중간 (Medium)</option>
+                                <option value="low">🟢 낮음 (Low)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group half">
+                            <label for="edit-todo-category" class="form-label">카테고리</label>
+                            <input type="text" id="edit-todo-category" class="input-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-todo-due-date" class="form-label">마감 목표일</label>
+                        <input type="date" id="edit-todo-due-date" class="input-control">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="btn-cancel-edit" class="btn btn-secondary">취소</button>
+                        <button type="submit" id="btn-save-edit" class="btn btn-primary">변경사항 저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 토스트 메시지 -->
+        <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
